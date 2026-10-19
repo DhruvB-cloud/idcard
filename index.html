@@ -1,0 +1,259 @@
+<!DOCTYPE html>                                         <!-- Tells the browser this is a modern HTML5 page -->
+<html lang="en" data-theme="dark">                      <!-- lang helps screen readers; data-theme stores dark/light mode -->
+<head>
+  <meta charset="UTF-8">                                <!-- Lets the page show any character (emoji, ₹, etc.) correctly -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Makes the site fit phone screens instead of looking zoomed out -->
+  <title>Dhruv Bisht | Full Stack Developer</title>     <!-- Text on the browser tab and the blue link in Google results -->
+  <meta name="description" content="Dhruv Bisht, Full Stack Developer in Hyderabad with 3+ years of product management experience. Three apps built end to end in Python, Java and JavaScript."> <!-- The summary Google shows under your link -->
+  <meta name="author" content="Dhruv Bisht">            <!-- Who made the page -->
+
+  <!-- Open Graph tags: control the preview card when your link is shared on LinkedIn / WhatsApp.
+       Link previews need FULL web addresses (https://...), so these point at the future GitHub Pages address -->
+  <meta property="og:title" content="Dhruv Bisht | Full Stack Developer">               <!-- Preview title -->
+  <meta property="og:description" content="Product Manager turned Full Stack Developer. See the three apps I've built end to end."> <!-- Preview text -->
+  <meta property="og:type" content="website">           <!-- Tells LinkedIn this is a website (not an article/video) -->
+  <meta property="og:url" content="https://dhruvb-cloud.github.io/idcard/">             <!-- The site's public address (repo "idcard" -> /idcard/) -->
+  <meta property="og:image" content="https://dhruvb-cloud.github.io/idcard/assets/og-image.png"> <!-- Preview picture (1200 x 630 px) -->
+  <meta name="twitter:card" content="summary_large_image"> <!-- Same big preview card on X/Twitter -->
+
+  <!-- Favicon = the tiny icon on the browser tab. This one is drawn with inline SVG code, so no image file is needed -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%236366f1'/><text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-weight='700' font-size='28' fill='white'>DB</text></svg>">
+
+  <!-- Google Fonts: "Inter" for normal text and "JetBrains Mono" for code-style text -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">               <!-- Opens a connection early so fonts load faster -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>      <!-- Same, for the server that sends the font files -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"> <!-- Loads the two fonts -->
+
+  <!-- Devicon: a free icon set with logos of programming languages and tools (used in the Skills section) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css">
+
+  <link rel="stylesheet" href="css/style.css">          <!-- Our own styles (colours, layout, animations) -->
+  <link rel="stylesheet" href="css/easter-egg.css">     <!-- Styles for the secret themes + egg animation (loaded after style.css so it can override it) -->
+
+  <!-- Runs BEFORE the page draws, so a visitor who picked light mode never sees a dark "flash" first -->
+  <script>
+    document.documentElement.classList.add("js");                          // Marks "JavaScript is working" so CSS may hide items for the scroll animation
+    try {                                                                   // try/catch: if the browser blocks storage, don't crash
+      const saved = localStorage.getItem("theme");                          // Read the theme the visitor chose last time (if any)
+      if (saved) document.documentElement.dataset.theme = saved;            // Apply it to the <html> tag straight away
+      else if (matchMedia("(prefers-color-scheme: light)").matches)          // First visit: does their computer use light mode?
+        document.documentElement.dataset.theme = "light";                   // Then start in light mode to match it
+    } catch (e) {}                                                          // Ignore errors - the default dark theme is used
+  </script>
+</head>
+
+<body>
+  <!-- "Skip link": hidden until you press Tab; lets keyboard users jump past the menu (an accessibility best practice) -->
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Soft coloured blobs that float slowly in the background (pure decoration) -->
+  <div class="bg-glow" aria-hidden="true">               <!-- aria-hidden: screen readers skip decorative things -->
+    <span class="blob blob-1"></span>                    <!-- Purple blob -->
+    <span class="blob blob-2"></span>                    <!-- Teal blob -->
+    <span class="blob blob-3"></span>                    <!-- Pink blob -->
+  </div>
+  <div class="bg-grid" aria-hidden="true"></div>         <!-- Faint grid pattern for a "tech" feel -->
+
+  <!-- Thin bar at the very top that fills up as you scroll down the page -->
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+  <!-- ================= NAVIGATION BAR (sticks to the top) ================= -->
+  <header class="nav" id="nav">
+    <div class="container nav-inner">                   <!-- container = centres content and limits its width -->
+      <a href="#home" class="logo" aria-label="Back to top"> <!-- Clicking the logo scrolls to the top -->
+        <span class="logo-mark">DB</span>               <!-- Small square logo with your initials -->
+        <span class="logo-text">Dhruv<span class="accent">.</span></span> <!-- Name with a coloured dot -->
+      </a>
+
+      <nav aria-label="Main">                            <!-- <nav> marks this as the main menu for screen readers -->
+        <ul class="nav-links" id="navLinks">            <!-- The list of menu links, in the same order as the sections -->
+          <li><a href="#about">About</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="#skills">Skills</a></li>
+          <li><a href="#impact">Beyond Code</a></li>
+          <li><a href="#contact" class="nav-cta">Contact</a></li> <!-- Highlighted as a button -->
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- Dark/light mode switch. Both icons are drawn with SVG; CSS shows the right one for the current theme -->
+        <button class="icon-btn" id="themeToggle" aria-label="Switch between dark and light mode">
+          <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+        <!-- "Hamburger" button (three lines) that opens the menu on phones; hidden on big screens -->
+        <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+          <span></span><span></span><span></span>       <!-- The three lines; CSS turns them into an X when open -->
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">                                       <!-- <main> wraps the unique content of the page -->
+
+    <!-- ================= HERO (the first big banner) ================= -->
+    <section class="hero" id="home">
+      <div class="container hero-inner">
+        <div class="hero-text">
+          <p class="hero-hello mono">Hi, my name is</p>   <!-- Small intro line in code font -->
+          <h1 class="hero-name" id="heroName">Dhruv Bisht</h1> <!-- Your name, very large -->
+          <h2 class="hero-role">                           <!-- The typing animation line -->
+            I'm <span id="article">a</span> <span class="typed" id="typed"></span><span class="caret" aria-hidden="true">|</span>
+          </h2>
+          <!-- Green "open to work" pill; main.js fills the text and hides it if openToWork is false -->
+          <p class="status-pill" id="statusPill"><span class="pulse"></span> <span id="statusText"></span></p>
+          <p class="hero-tagline" id="heroTagline"></p>  <!-- Filled from data.js -->
+
+          <div class="hero-buttons">                     <!-- Call-to-action buttons -->
+            <a class="btn btn-primary" href="#projects">See my projects &darr;</a> <!-- The proof first: scrolls to the projects -->
+            <a class="btn btn-ghost" id="resumeBtn" href="#" download>Download resume</a> <!-- "download" saves the PDF; main.js hides this if the PDF is missing -->
+          </div>
+
+          <div class="hero-socials">                     <!-- LinkedIn / GitHub / Email icon links -->
+            <a class="social" id="linkedinLink" href="#" target="_blank" rel="noopener" aria-label="LinkedIn profile">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+            </a>
+            <a class="social" id="githubLink" href="#" target="_blank" rel="noopener" aria-label="GitHub profile">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.5.4.9 1.1.9 2.2v3.3c0 .3.1.7.8.6A12 12 0 0 0 12 .3"/></svg>
+            </a>
+            <a class="social" id="emailLink" href="#" aria-label="Send me an email">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Photo with a spinning gradient ring around it -->
+        <div class="hero-photo-wrap">
+          <div class="photo-ring" aria-hidden="true"></div>   <!-- The animated colourful ring -->
+          <div class="hero-photo" id="heroPhoto">              <!-- main.js puts your photo (or initials) in here -->
+            <span class="photo-initials" id="photoInitials">DB</span>
+          </div>
+        </div>
+      </div>
+
+      <a href="#about" class="scroll-hint" aria-label="Scroll down"><span></span></a> <!-- Animated mouse icon -->
+    </section>
+
+    <!-- ================= 01 ABOUT ================= -->
+    <section class="section" id="about">
+      <div class="container">
+        <header class="section-head reveal">            <!-- "reveal" = fades in when scrolled into view -->
+          <span class="section-num mono">01.</span>     <!-- Section number in code font -->
+          <h2>About me</h2>
+          <p class="section-sub">I understand products <em>and</em> I build them.</p>
+        </header>
+        <div class="about-grid">
+          <div class="about-text reveal" id="aboutText"></div> <!-- Paragraphs from data.js -->
+          <div class="stats reveal" id="stats"></div>          <!-- Animated counters from data.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 02 PROJECTS (the proof - placed straight after About) ================= -->
+    <section class="section" id="projects">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="section-num mono">02.</span>
+          <h2>Projects</h2>
+          <p class="section-sub">Three apps I designed, built and shipped end to end.</p>
+        </header>
+        <div class="project-list" id="projectList"></div> <!-- One large card per featured project, from data.js -->
+
+        <!-- Slim banner pointing to AppHub, where the apps can be downloaded -->
+        <a class="hub-strip reveal" id="hubStrip" href="#" target="_blank" rel="noopener">
+          <span class="hub-strip-icon" aria-hidden="true">📲</span>
+          <span><b>Want to try them?</b> Download my Android apps and leave feedback on AppHub.</span>
+          <span class="hub-strip-arrow" aria-hidden="true">&rarr;</span>
+        </a>
+
+        <h3 class="sub-title reveal">Earlier work</h3>
+        <div class="earlier-grid" id="earlierGrid"></div> <!-- Small cards for college projects -->
+      </div>
+    </section>
+
+    <!-- ================= 03 EXPERIENCE ================= -->
+    <section class="section" id="experience">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="section-num mono">03.</span>
+          <h2>Experience</h2>
+          <p class="section-sub">Where product thinking met engineering.</p>
+        </header>
+        <ol class="timeline" id="timeline"></ol>          <!-- <ol> = ordered list; one item per job, then education -->
+      </div>
+    </section>
+
+    <!-- ================= 04 SKILLS ================= -->
+    <section class="section" id="skills">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="section-num mono">04.</span>
+          <h2>Skills</h2>
+          <p class="section-sub">Only what my projects above actually use.</p>
+        </header>
+        <div class="skills-grid" id="skillsGrid"></div>  <!-- Skill cards from data.js -->
+        <div class="cert-strip reveal" id="certStrip"></div> <!-- Certifications, as one short line -->
+      </div>
+    </section>
+
+    <!-- ================= 05 BEYOND CODE (workshops / events / community + interests) ================= -->
+    <section class="section" id="impact">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="section-num mono">05.</span>
+          <h2>Beyond code</h2>
+          <p class="section-sub">Workshops I teach, events I host and communities I've helped build.</p>
+        </header>
+        <!-- Filter buttons: clicking one shows only that type of card -->
+        <div class="filters reveal" id="filters" role="group" aria-label="Filter activities">
+          <button class="filter active" data-filter="all">All</button>
+          <button class="filter" data-filter="Workshop">Workshops</button>
+          <button class="filter" data-filter="Events">Events</button>
+          <button class="filter" data-filter="Community">Community</button>
+        </div>
+        <div class="impact-grid" id="impactGrid"></div>  <!-- Cards from data.js -->
+
+        <!-- Interests as one compact row of chips -->
+        <div class="interest-row reveal">
+          <span class="interest-label mono">Outside of work:</span>
+          <div class="interest-chips" id="interestChips"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CONTACT ================= -->
+    <section class="section contact" id="contact">
+      <div class="container">
+        <div class="contact-card reveal">
+          <span class="section-num mono">06. What's next?</span>
+          <h2>Let's build something together</h2>
+          <p>I'm looking for <strong>Full Stack Developer</strong> roles where product sense is a bonus. Based in Hyderabad and open to remote or hybrid work. If you have a role in mind, my inbox is open.</p>
+          <div class="contact-buttons">
+            <a class="btn btn-primary" id="contactEmail" href="#">Email me &rarr;</a>
+            <a class="btn btn-ghost" id="contactLinkedin" href="#" target="_blank" rel="noopener">Connect on LinkedIn</a>
+            <a class="btn btn-ghost" id="contactGithub" href="#" target="_blank" rel="noopener">See my GitHub</a>
+          </div>
+          <!-- Click-to-copy email: handy when the visitor has no mail app set up -->
+          <button class="copy-email mono" id="copyEmail" aria-label="Copy email address">
+            <span id="copyEmailText"></span> <span class="copy-hint" id="copyHint">click to copy</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p>&copy; <span id="year"></span> Dhruv Bisht. Designed &amp; built by me, hosted on GitHub Pages.</p> <!-- main.js fills in the current year -->
+      <a href="#home" class="mono">back to top &uarr;</a>
+    </div>
+  </footer>
+
+  <!-- Scripts go at the end so the HTML is already loaded when they run -->
+  <script src="js/data.js"></script>                     <!-- 1st: the content -->
+  <script src="js/main.js"></script>                     <!-- 2nd: the code that puts content on the page + animations -->
+  <script src="js/easter-egg.js"></script>               <!-- 3rd: the secret (hold the light/dark toggle for 5 seconds...) -->
+</body>
+</html>

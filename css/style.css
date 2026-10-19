@@ -1,0 +1,523 @@
+/* ==========================================================================
+   style.css - how the website LOOKS (colours, sizes, layout, animations).
+   Jargon:
+   - "selector" = the part before { } that picks which HTML elements to style
+   - "CSS variable" = a named value like --accent that we reuse everywhere,
+     so changing it in ONE place re-colours the whole site
+   ========================================================================== */
+
+/* ---------- 1. Colour themes ---------- */
+:root,                                   /* :root = the <html> tag. Dark theme is the default */
+[data-theme="dark"] {                    /* Also applies when <html data-theme="dark"> */
+  --bg: #0a0c16;                         /* Page background (very dark navy) */
+  --bg-soft: #10132233;                  /* Slightly lighter, see-through background for the sticky nav */
+  --surface: rgba(255, 255, 255, 0.04);  /* Card background: white at 4% opacity = "frosted glass" */
+  --surface-hover: rgba(255, 255, 255, 0.07); /* Card background when the mouse is over it */
+  --border: rgba(255, 255, 255, 0.09);   /* Thin card borders */
+  --text: #e7e9f4;                       /* Main text colour (off-white is easier on the eyes than pure white) */
+  --muted: #9aa1bd;                      /* Secondary text (descriptions, dates) */
+  --accent: #818cf8;                     /* Main brand colour (indigo) */
+  --accent-2: #22d3ee;                   /* Second brand colour (cyan) */
+  --accent-3: #f472b6;                   /* Third colour (pink) used in gradients */
+  --green: #34d399;                      /* "Open to work" / live indicator */
+  --gold: #fbbf24;                       /* Gold badge colour */
+  --shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.7); /* Soft drop shadow under cards */
+  --grid-line: rgba(255, 255, 255, 0.035); /* Colour of the faint background grid */
+  --blob-opacity: 0.35;                  /* How strong the background colour blobs are */
+  color-scheme: dark;                    /* Tells the browser to draw scrollbars/form controls in dark style */
+}
+
+[data-theme="light"] {                   /* Light theme: same variable names, different values */
+  --bg: #f6f7fb;
+  --bg-soft: #f6f7fbcc;
+  --surface: #ffffff;
+  --surface-hover: #ffffff;
+  --border: rgba(15, 23, 42, 0.09);
+  --text: #0f172a;
+  --muted: #4b5470;
+  --accent: #4f46e5;                     /* Darker indigo so it stays readable on white */
+  --accent-2: #0891b2;
+  --accent-3: #db2777;
+  --green: #059669;
+  --gold: #b45309;
+  --shadow: 0 20px 40px -24px rgba(15, 23, 42, 0.25);
+  --grid-line: rgba(15, 23, 42, 0.04);
+  --blob-opacity: 0.18;
+  color-scheme: light;
+}
+
+/* ---------- 2. Base / reset ---------- */
+*, *::before, *::after { box-sizing: border-box; } /* Width includes padding + border = predictable sizes */
+html { scroll-behavior: smooth; scroll-padding-top: 80px; } /* Smooth scrolling for menu links; 80px so the sticky nav doesn't cover headings */
+body {
+  margin: 0;                                         /* Remove the browser's default 8px gap around the page */
+  font-family: "Inter", system-ui, sans-serif;       /* Use Inter; fall back to the system font if it fails to load */
+  background: var(--bg);                             /* var(--bg) reads the CSS variable defined above */
+  color: var(--text);                                /* Default text colour */
+  line-height: 1.65;                                 /* Comfortable spacing between lines of text */
+  -webkit-font-smoothing: antialiased;               /* Smoother-looking text on Mac */
+  overflow-x: hidden;                                /* Never allow sideways scrolling (e.g. from the blobs) */
+  transition: background 0.4s, color 0.4s;           /* Fade nicely when switching themes */
+}
+img { max-width: 100%; display: block; }             /* Images never overflow their box */
+[hidden] { display: none !important; }               /* Make the "hidden" attribute always win, even over rules like .btn { display: inline-flex } */
+a { color: inherit; text-decoration: none; }         /* Links use the surrounding text colour, no underline */
+h1, h2, h3 { line-height: 1.15; margin: 0; letter-spacing: -0.02em; } /* Tighter headings look more modern */
+p { margin: 0 0 1rem; }                              /* Space below each paragraph */
+ul, ol { margin: 0; padding: 0; list-style: none; }  /* Remove default bullets/numbers; we design our own */
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; } /* Make buttons look like the rest of the page */
+.mono { font-family: "JetBrains Mono", ui-monospace, monospace; } /* Code-style font helper class */
+.accent { color: var(--accent); }                    /* Helper: colour text with the accent */
+::selection { background: var(--accent); color: #fff; } /* Colour used when you highlight text with the mouse */
+:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 3px; border-radius: 6px; } /* Clear focus ring for keyboard users */
+
+.container { width: min(1120px, 100% - 2.5rem); margin-inline: auto; } /* Max 1120px wide, centred, with a 20px gutter each side on phones */
+
+/* Skip link: off-screen until a keyboard user tabs to it */
+.skip-link { position: absolute; left: -999px; top: 0; z-index: 100; background: var(--accent); color: #fff; padding: .6rem 1rem; border-radius: 0 0 8px 0; }
+.skip-link:focus { left: 0; }                        /* Slides into view when focused */
+
+/* ---------- 3. Background decoration ---------- */
+.bg-glow { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; } /* Fixed behind everything; can't be clicked */
+.blob {
+  position: absolute;                                /* Placed freely inside .bg-glow */
+  width: 42vmax; height: 42vmax;                     /* Size relative to the screen's larger side */
+  border-radius: 50%;                                /* Makes it a circle */
+  filter: blur(90px);                                /* Heavy blur turns the circle into a soft glow */
+  opacity: var(--blob-opacity);                      /* Strength depends on the theme */
+  animation: drift 22s ease-in-out infinite alternate; /* Slowly floats back and forth forever */
+}
+.blob-1 { background: var(--accent);   top: -15%; left: -10%; }   /* Purple, top-left */
+.blob-2 { background: var(--accent-2); bottom: -20%; right: -10%; animation-delay: -7s; } /* Cyan, bottom-right; delay so they don't move in sync */
+.blob-3 { background: var(--accent-3); top: 40%; left: 45%; width: 28vmax; height: 28vmax; animation-delay: -14s; opacity: calc(var(--blob-opacity) * .6); } /* Smaller pink one */
+@keyframes drift {                                   /* @keyframes defines an animation's steps */
+  to { transform: translate(6vw, 8vh) scale(1.15); } /* End point: moved a bit and slightly bigger */
+}
+.bg-grid {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image:                                  /* Two thin-line gradients = a grid */
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;                        /* Each grid square is 56px */
+  mask-image: radial-gradient(ellipse at 50% 0%, #000 30%, transparent 75%); /* Fades the grid out towards the edges */
+}
+
+/* Scroll progress bar at the top */
+.scroll-progress {
+  position: fixed; top: 0; left: 0; height: 3px; z-index: 60;
+  width: 100%; transform-origin: left; transform: scaleX(0); /* Starts at 0 width; main.js scales it as you scroll */
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+}
+
+/* ---------- 4. Navigation bar ---------- */
+.nav {
+  position: sticky; top: 0; z-index: 50;             /* Sticks to the top while scrolling, above other content */
+  transition: background .3s, border-color .3s, box-shadow .3s;
+  border-bottom: 1px solid transparent;
+}
+.nav.scrolled {                                      /* main.js adds "scrolled" once you leave the top of the page */
+  background: var(--bg-soft);
+  backdrop-filter: blur(14px) saturate(160%);        /* Frosted-glass blur of what's behind the bar */
+  -webkit-backdrop-filter: blur(14px) saturate(160%);/* Same, for Safari */
+  border-bottom-color: var(--border);
+}
+.nav-inner { display: flex; align-items: center; justify-content: space-between; height: 70px; gap: 1rem; } /* Logo left, menu middle, buttons right */
+.logo { display: flex; align-items: center; gap: .6rem; font-weight: 800; font-size: 1.15rem; }
+.logo-mark {
+  display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; /* Small rounded square */
+  background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; font-size: .85rem;
+}
+.nav-links { display: flex; align-items: center; gap: .25rem; } /* Menu items in a row */
+.nav-links a {
+  position: relative; display: block; padding: .45rem .75rem; border-radius: 8px;
+  font-size: .92rem; font-weight: 500; color: var(--muted); transition: color .2s, background .2s;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--text); } /* Brighter on hover / when that section is on screen */
+.nav-links a.active::after {                         /* Small glowing line under the active menu item */
+  content: ""; position: absolute; left: .75rem; right: .75rem; bottom: .15rem; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+.nav-links .nav-cta { color: var(--accent); border: 1px solid var(--accent); margin-left: .4rem; } /* "Contact" looks like a button */
+.nav-links .nav-cta:hover { background: var(--accent); color: #fff; }
+.nav-links .nav-cta.active::after { display: none; } /* No underline on the button */
+.nav-actions { display: flex; gap: .4rem; }
+.icon-btn {
+  display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--surface); transition: transform .2s, border-color .2s;
+}
+.icon-btn:hover { transform: translateY(-2px); border-color: var(--accent); } /* Lifts slightly on hover */
+[data-theme="dark"] .icon-sun, [data-theme="light"] .icon-moon { display: block; } /* Show sun in dark mode (click = go light) and vice versa */
+[data-theme="dark"] .icon-moon, [data-theme="light"] .icon-sun { display: none; }
+.menu-btn { display: none; flex-direction: column; justify-content: center; align-items: center; gap: 4px; } /* Hamburger hidden on desktop; the 3 lines are stacked in a column and centred both ways */
+.menu-btn span { width: 18px; height: 2px; background: currentColor; border-radius: 2px; transition: transform .3s, opacity .3s; }
+
+/* ---------- 5. Buttons and small shared bits ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: .5rem; padding: .85rem 1.5rem; border-radius: 12px;
+  font-weight: 600; font-size: .95rem; transition: transform .2s, box-shadow .2s, background .2s, border-color .2s;
+}
+.btn-primary {
+  color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-2)); /* Gradient fill */
+  box-shadow: 0 10px 30px -10px var(--accent);       /* Coloured glow under the button */
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 16px 36px -10px var(--accent); }
+.btn-ghost { border: 1px solid var(--border); background: var(--surface); } /* Outline-style button */
+.btn-ghost:hover { transform: translateY(-3px); border-color: var(--accent); }
+.tags { display: flex; flex-wrap: wrap; gap: .4rem; } /* Row of small chips that wraps onto new lines */
+.tag {
+  font-family: "JetBrains Mono", monospace; font-size: .74rem; padding: .25rem .6rem; border-radius: 999px; /* 999px = fully rounded "pill" */
+  color: var(--accent-2); background: color-mix(in srgb, var(--accent-2) 12%, transparent); /* 12% tint of cyan */
+}
+.card {                                              /* Shared "glass card" look used by many sections */
+  background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+  box-shadow: var(--shadow); transition: transform .3s, border-color .3s, background .3s;
+}
+.card:hover { transform: translateY(-6px); border-color: color-mix(in srgb, var(--accent) 50%, transparent); background: var(--surface-hover); }
+
+/* ---------- 6. Hero ---------- */
+.hero { min-height: calc(100vh - 70px); display: flex; align-items: center; position: relative; padding: 3rem 0 5rem; } /* Fills the first screen */
+.hero-inner { display: grid; grid-template-columns: 1.3fr 1fr; align-items: center; gap: 3rem; } /* Text column is wider than the photo column */
+.status-pill {
+  display: inline-flex; align-items: center; gap: .55rem; padding: .35rem .9rem; border-radius: 999px; font-size: .82rem; font-weight: 600;
+  color: var(--green); background: color-mix(in srgb, var(--green) 12%, transparent); border: 1px solid color-mix(in srgb, var(--green) 30%, transparent);
+}
+.pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--green); position: relative; } /* Green dot */
+.pulse::after {                                      /* Expanding ring around the dot = "live" feeling */
+  content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--green);
+  animation: ping 1.8s ease-out infinite;
+}
+@keyframes ping { to { transform: scale(3); opacity: 0; } } /* Ring grows and fades out */
+.hero-hello { color: var(--accent-2); margin: 0 0 .4rem; font-size: 1rem; }
+.hero-name {
+  font-size: clamp(2.8rem, 7vw, 5.2rem); font-weight: 800; /* clamp(min, preferred, max) = scales with screen width */
+  background: linear-gradient(120deg, var(--text) 30%, var(--accent) 65%, var(--accent-2)); /* Gradient text... */
+  -webkit-background-clip: text; background-clip: text; color: transparent;               /* ...shown through the letters */
+}
+.hero-role { font-size: clamp(1.3rem, 3vw, 2rem); font-weight: 600; color: var(--muted); margin: .6rem 0 1rem; min-height: 1.3em; }
+.typed { color: var(--text); }
+.caret { color: var(--accent); animation: blink 1s steps(1) infinite; margin-left: 2px; } /* Blinking typing cursor */
+@keyframes blink { 50% { opacity: 0; } }
+.hero-tagline { max-width: 560px; color: var(--muted); font-size: 1.08rem; }
+.hero-buttons { display: flex; flex-wrap: wrap; gap: .8rem; margin: 1.8rem 0 1.6rem; }
+.hero-socials { display: flex; gap: .6rem; }
+.social {
+  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--muted); transition: all .25s;
+}
+.social:hover { color: #fff; background: var(--accent); border-color: var(--accent); transform: translateY(-3px); }
+
+.hero-photo-wrap { position: relative; justify-self: center; width: min(360px, 80vw); aspect-ratio: 1; } /* Square box for the photo */
+.photo-ring {                                        /* Spinning rainbow ring behind the photo */
+  position: absolute; inset: -6px; border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--accent), var(--accent-2), var(--accent-3), var(--accent)); /* Colour wheel */
+  animation: spin 8s linear infinite; filter: blur(8px); /* Strong blur turns the hard ring into a soft glow that melts into the background */
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.hero-photo {
+  position: absolute; inset: 0; border-radius: 50%; overflow: hidden; /* Circle crop */
+  background: var(--bg); display: grid; place-items: center; /* No spacer border: the photo sits directly against the colour ring */
+}
+.hero-photo img { width: 100%; height: 100%; object-fit: cover; } /* Photo fills the circle without stretching */
+/* Soft edge: a "mask" decides how visible each part of an element is (black = fully visible, transparent = hidden).
+   This one keeps the middle of the photo solid and fades the outer ~8% of the circle away, so the edge blends in.
+   "closest-side" makes 100% = the circle's edge. -webkit- is the same rule for Safari. */
+.hero-photo {
+  -webkit-mask-image: radial-gradient(circle closest-side, #000 92%, transparent 100%);
+          mask-image: radial-gradient(circle closest-side, #000 92%, transparent 100%);
+}
+.photo-initials {
+  font-size: 5rem; font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+.scroll-hint {                                       /* Mouse-shaped "scroll down" icon */
+  position: absolute; bottom: 1.5rem; left: 50%; translate: -50% 0;
+  width: 24px; height: 38px; border: 2px solid var(--muted); border-radius: 14px; opacity: .6;
+}
+.scroll-hint span { position: absolute; top: 6px; left: 50%; width: 4px; height: 8px; margin-left: -2px; border-radius: 2px; background: var(--muted); animation: wheel 1.8s infinite; }
+@keyframes wheel { to { transform: translateY(12px); opacity: 0; } } /* The "scroll wheel" slides down and fades */
+
+/* ---------- 7. Sections (shared) ---------- */
+.section { padding: 3.5rem 0; }                      /* Vertical breathing room: 3.5rem below one section + 3.5rem above the next = 7rem gap */
+#about { padding: 6rem 0; }                          /* About keeps its larger spacing (after the hero and before Projects)... */
+#projects { padding-top: 6rem; }                     /* ...so the gap between section 01 and 02 stays 12rem, as before */
+.section-head { margin-bottom: 3rem; }
+.section-num { color: var(--accent-2); font-size: .95rem; }
+.section-head h2 { font-size: clamp(2rem, 4.5vw, 2.9rem); font-weight: 800; margin: .3rem 0 .5rem; }
+.section-sub { color: var(--muted); font-size: 1.05rem; margin: 0; }
+.sub-title { font-size: 1.25rem; margin: 3rem 0 1.2rem; }
+
+/* Scroll-reveal animation: elements start invisible + lower, main.js adds .visible when they scroll into view.
+   ".js" is added to <html> by a script in the <head>, so if JavaScript is off/broken nothing stays hidden */
+.js .reveal { opacity: 0; transform: translateY(30px); transition: opacity .8s ease, transform .8s ease; }
+.js .reveal.visible { opacity: 1; transform: none; }
+
+/* ---------- 8. About ---------- */
+.about-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 3rem; align-items: start; }
+.about-text p { color: var(--muted); font-size: 1.05rem; }
+.about-text strong { color: var(--text); }
+.stats { display: grid; gap: 1rem; }
+.stat { padding: 1.3rem 1.5rem; display: flex; align-items: baseline; gap: 1rem; }
+.stat-num {
+  font-size: 2.4rem; font-weight: 800; min-width: 4.2ch; /* ch = width of one "0" character, keeps numbers aligned */
+  background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.stat-label { color: var(--muted); font-size: .95rem; }
+
+/* ---------- 9. Experience timeline ---------- */
+.timeline { position: relative; padding-left: 2rem; }
+.timeline::before {                                  /* The vertical gradient line */
+  content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px;
+  background: linear-gradient(var(--accent), var(--accent-2), transparent);
+}
+.tl-item { position: relative; margin-bottom: 2rem; }
+.tl-item::before {                                   /* The glowing dot on the line for each job */
+  content: ""; position: absolute; left: calc(-2rem + 1px); top: 1.7rem; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--bg); border: 3px solid var(--accent); box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.tl-card { padding: 1.6rem 1.8rem; }
+.tl-top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .3rem 1rem; margin-bottom: .2rem; }
+.tl-top h3 { font-size: 1.25rem; }
+.tl-period { color: var(--accent-2); font-size: .85rem; }
+.tl-company { color: var(--accent); font-weight: 600; margin-bottom: .9rem; }
+.tl-company span { color: var(--muted); font-weight: 400; }
+.tl-points li { position: relative; padding-left: 1.4rem; color: var(--muted); margin-bottom: .55rem; }
+.tl-points li::before { content: "▹"; position: absolute; left: 0; color: var(--accent-2); } /* Custom bullet */
+.tl-points b { color: var(--text); font-weight: 600; }
+.tl-card .tags { margin-top: 1rem; }
+/* Education entry on the timeline: a 🎓 badge replaces the round dot, and a small "EDUCATION" label sits above the title */
+.tl-edu::before {
+  content: "🎓"; display: grid; place-items: center; font-size: 1rem; line-height: 1;
+  width: 32px; height: 32px; left: calc(-2rem - 8px); top: 1.3rem; border-width: 2px; /* Bigger than the job dots, still centred on the line */
+  border-color: var(--accent-2); box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent-2) 20%, transparent);
+}
+.tl-label { display: inline-block; font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--accent-2); margin-bottom: .4rem; }
+.tl-edu .tl-company { margin-bottom: 0; }           /* No bullet points below, so no extra gap */
+
+/* ---------- 10. Skills ---------- */
+.skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.2rem; } /* As many 250px+ columns as fit */
+.skill-card { padding: 1.5rem; }
+.skill-card h3 { font-size: 1rem; margin-bottom: 1.1rem; display: flex; align-items: center; gap: .5rem; }
+.skill-card h3::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+.skill-list { display: flex; flex-wrap: wrap; gap: .5rem; }
+.skill {
+  display: inline-flex; align-items: center; gap: .45rem; padding: .45rem .75rem; border-radius: 10px; font-size: .88rem;
+  border: 1px solid var(--border); background: color-mix(in srgb, var(--text) 3%, transparent); transition: all .2s;
+}
+.skill i { font-size: 1.15rem; color: var(--accent-2); transition: transform .3s; } /* The logo icon */
+.skill:hover { border-color: var(--accent); color: var(--text); }
+.skill:hover i { transform: rotate(-10deg) scale(1.2); } /* Playful wiggle on hover */
+
+/* ---------- 11. Projects ---------- */
+.project-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; } /* 3 compact cards side by side */
+.project {                                          /* One compact project card: picture on top, details below */
+  display: flex; flex-direction: column; overflow: hidden; cursor: pointer; /* Pointer cursor = "click me for more" */
+}
+.project-visual { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: color-mix(in srgb, var(--text) 4%, transparent); }
+.project-visual:has(> img) {                        /* Panel holding a screenshot: centre it with breathing room */
+  display: grid; place-items: center; padding: 1.2rem;
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 65%);
+}
+.project-visual > img {                             /* The screenshot, framed like a floating browser window */
+  width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border);
+  box-shadow: 0 24px 50px -18px rgba(0, 0, 0, .7); transition: transform .6s ease;
+}
+.project:hover .project-visual > img { transform: scale(1.03) rotate(-1deg); }
+.project-banner {                                   /* Coloured panel used when there's no screenshot */
+  position: absolute; inset: 0; display: grid; place-items: center;
+  background:
+    radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--accent) 40%, transparent), transparent 60%),
+    radial-gradient(circle at 75% 80%, color-mix(in srgb, var(--accent-2) 30%, transparent), transparent 55%);
+}
+.project-icon { width: 96px; height: 96px; border-radius: 24px; box-shadow: 0 20px 40px -12px rgba(0, 0, 0, .5); transition: transform .5s; }
+.project-emoji { font-size: 4.5rem; filter: drop-shadow(0 16px 24px rgba(0, 0, 0, .35)); transition: transform .5s; }
+.project:hover .project-icon, .project:hover .project-emoji { transform: scale(1.08) rotate(-4deg); }
+.project-info { padding: 1.4rem 1.5rem 1.5rem; display: flex; flex-direction: column; flex: 1; }
+.project-num { color: var(--accent-2); font-size: .85rem; }
+.project-info h3, .project-dialog h3 { font-size: 1.45rem; font-weight: 800; margin: .15rem 0 .35rem; }
+.project-tagline { color: var(--text); font-size: .97rem; margin-bottom: .8rem; }
+.project-highlight {                                /* The one-line "strongest facts" summary */
+  color: var(--accent-2); font-family: "JetBrains Mono", monospace; font-size: .8rem; line-height: 1.55; margin-bottom: 1rem;
+}
+.project-info .tags { margin-top: auto; }           /* margin-top:auto pushes tags + buttons to the bottom so the 3 cards line up */
+.project-more {                                     /* "What I built ->" hint that the card opens a popup */
+  margin-top: 1rem; font-size: .8rem; color: var(--accent); transition: letter-spacing .25s;
+}
+.project:hover .project-more, .project:focus-visible .project-more { letter-spacing: .06em; }
+.built-title { color: var(--accent); font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .6rem; }
+.project-dialog .tl-points { margin-bottom: 1.1rem; } /* Reuses the timeline's ▹ bullet style */
+.project-dialog .project-visual { aspect-ratio: 16 / 6; } /* Wide, short picture at the top of the popup, so the details and buttons fit on screen */
+.project-links { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: 1.1rem; }
+.btn-small { padding: .6rem 1.05rem; font-size: .88rem; border-radius: 10px; }
+.project-note { color: var(--muted); font-size: .88rem; }
+
+/* Slim AppHub banner under the projects */
+.hub-strip {
+  display: flex; align-items: center; gap: 1rem; margin-top: 1.6rem; padding: 1.1rem 1.4rem; border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); color: var(--muted);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 12%, transparent), color-mix(in srgb, var(--accent-2) 8%, transparent));
+  transition: border-color .25s, transform .25s;
+}
+.hub-strip b { color: var(--text); }
+.hub-strip-icon { font-size: 1.5rem; }
+.hub-strip-arrow { margin-left: auto; font-size: 1.3rem; color: var(--accent); transition: transform .25s; }
+.hub-strip:hover { border-color: var(--accent); transform: translateY(-2px); }
+.hub-strip:hover .hub-strip-arrow { transform: translateX(5px); }
+
+/* Earlier (college) projects: small cards */
+.earlier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; }
+.earlier { display: flex; flex-direction: column; overflow: hidden; } /* overflow:hidden clips the photo to the card's rounded corners */
+.earlier-img { width: 100%; aspect-ratio: 16 / 6; object-fit: cover; transition: transform .5s ease; } /* Optional photo on top: a short, wide strip so old projects never outshine the featured ones; cover = fills the box without stretching */
+.earlier:hover .earlier-img { transform: scale(1.05); } /* Photo zooms in slightly on hover */
+.project-banner-static {                            /* Emoji banner for a card with no photo (only used when another card has one) */
+  display: grid; place-items: center; font-size: 3.5rem;
+  background:
+    radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--accent) 40%, transparent), transparent 60%),
+    radial-gradient(circle at 75% 80%, color-mix(in srgb, var(--accent-2) 30%, transparent), transparent 55%);
+}
+.earlier-body { padding: 1.5rem; display: flex; flex-direction: column; flex: 1; }
+.earlier h4 { font-size: 1.05rem; margin: 0 0 .5rem; }
+.earlier p { color: var(--muted); font-size: .93rem; flex: 1; } /* flex:1 pushes the tags to the bottom so cards line up */
+
+/* ---------- 12. In-person work ---------- */
+.filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 2rem; }
+.filter {
+  padding: .5rem 1.1rem; border-radius: 999px; font-size: .9rem; font-weight: 500;
+  border: 1px solid var(--border); background: var(--surface); color: var(--muted); transition: all .2s;
+}
+.filter:hover { color: var(--text); border-color: var(--accent); }
+.filter.active { color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; } /* Selected filter */
+.impact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1rem; } /* Compact: 4 cards per row on a laptop, so this section stays secondary to Projects */
+.impact-card {
+  position: relative; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; /* Pointer cursor = "you can click this" */
+  --c: var(--accent);                                /* Default highlight colour for cards with no type (type-... rules below override it) */
+  animation: pop .45s ease both;                     /* "pop" plays when a filter is clicked */
+}
+@keyframes pop { from { opacity: 0; transform: scale(.94); } }
+.impact-card.hidden { display: none; }             /* Cards not matching the filter are hidden */
+.impact-img { aspect-ratio: 16 / 9; object-fit: cover; width: 100%; } /* Optional photo at the top of the card */
+.impact-body { padding: 1.5rem; display: flex; flex-direction: column; flex: 1; }
+.type-badge { align-self: flex-start; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; padding: .25rem .65rem; border-radius: 6px; margin-bottom: .9rem; }
+.type-Workshop  { --c: var(--accent);   }         /* Each type gets its own colour stored in --c */
+.type-Events     { --c: var(--green);    }
+.type-Community { --c: var(--accent-3); }
+.type-badge { color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); }
+.impact-card h4 { font-size: 1.1rem; margin: 0 0 .25rem; }
+.impact-org { color: var(--text); font-weight: 500; font-size: .92rem; margin-bottom: .2rem; }
+.impact-card h4 { flex: 1; }                       /* The title stretches, pushing the ★ highlight to the bottom so cards line up */
+.impact-highlight { font-weight: 700; color: var(--c); font-size: .92rem; margin: .4rem 0 0; }
+.impact-img { transition: transform .5s ease; }
+.impact-fallback {                                  /* Banner shown in place of a photo: the type's colour fading into the cyan accent */
+  display: grid; place-items: center; font-size: 3rem;
+  background:
+    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--c) 45%, transparent), transparent 60%),
+    linear-gradient(135deg, color-mix(in srgb, var(--c) 22%, transparent), color-mix(in srgb, var(--accent-2) 12%, transparent));
+}
+.impact-card:hover .impact-img { transform: scale(1.06); } /* Photo zooms in slightly on hover */
+.expand-icon {                                      /* Small "maximize" icon in the top-right corner of each card */
+  position: absolute; top: .8rem; right: .8rem; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9px;
+  color: #fff; background: rgba(10, 12, 22, .55); backdrop-filter: blur(6px); border: 1px solid rgba(255, 255, 255, .15);
+  opacity: .7; transition: opacity .25s, transform .25s;
+}
+.impact-card:hover .expand-icon, .impact-card:focus-visible .expand-icon { opacity: 1; transform: scale(1.1); }
+
+/* The popup with the full event details */
+.event-dialog {
+  width: min(640px, 100% - 2rem); max-height: 88vh; padding: 0; overflow: auto; /* Scrolls inside if the text is long */
+  color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 22px;
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .8);
+}
+.event-dialog[open] { animation: event-in .35s cubic-bezier(.2, .9, .3, 1.15); } /* Grows out like the card is being maximized */
+@keyframes event-in { from { opacity: 0; transform: scale(.88); } }
+.event-dialog::backdrop { background: rgba(5, 6, 12, .65); backdrop-filter: blur(6px); }
+html:has(.event-dialog[open]) { overflow: hidden; } /* Stop the page behind from scrolling while the popup is open */
+.event-img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.event-dialog { --c: var(--accent); }              /* Default colour; a type-... class on .event-body overrides it for that event */
+.event-body { padding: 1.6rem 1.8rem 1.9rem; }
+.event-body h3 { font-size: 1.5rem; margin-bottom: .4rem; padding-right: 2.5rem; } /* Right padding keeps long titles clear of the ✕ button */
+.event-meta { color: var(--accent-2); font-family: "JetBrains Mono", monospace; font-size: .85rem; margin-bottom: 1rem; }
+.event-text { color: var(--muted); }
+.event-close {                                      /* Round ✕ button in the top-right corner */
+  position: absolute; top: .8rem; right: .8rem; z-index: 1; width: 38px; height: 38px; border-radius: 50%;
+  font-size: 1.5rem; line-height: 1; color: #fff; background: rgba(10, 12, 22, .6); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, .2); transition: transform .2s, background .2s;
+}
+.event-close:hover { transform: rotate(90deg); background: var(--accent); }
+.placeholder { outline: 2px dashed color-mix(in srgb, var(--gold) 60%, transparent); outline-offset: -8px; } /* Dashed yellow outline marks cards still holding PLACEHOLDER text */
+
+/* ---------- 13. Interests (a row of chips under "Beyond code") ---------- */
+.interest-row { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 1rem; margin-top: 2.2rem; }
+.interest-label { color: var(--muted); font-size: .88rem; }
+.interest-chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.interest-chip {
+  display: inline-flex; align-items: center; gap: .4rem; padding: .45rem .9rem; border-radius: 999px; font-size: .9rem;
+  border: 1px solid var(--border); background: var(--surface);
+}
+
+/* ---------- 14. Certifications (one line under the skills) ---------- */
+.cert-strip { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1.2rem; margin-top: 1.6rem; }
+.cert-label { color: var(--muted); font-size: .88rem; }
+.cert { display: inline-flex; align-items: center; gap: .45rem; font-weight: 600; font-size: .92rem; }
+.cert em { font-style: normal; font-weight: 400; color: var(--muted); }
+.cert-medal {                                       /* Small gold hexagon medal */
+  display: grid; place-items: center; width: 22px; height: 24px; font-size: .7rem; color: #fff;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); /* Cuts the square into a hexagon */
+  background: linear-gradient(135deg, #fde68a, #f59e0b, #b45309);
+}
+
+/* ---------- 15. Contact + footer ---------- */
+.contact-card {
+  text-align: center; max-width: 760px; margin: 0 auto; padding: 3.5rem 2rem; border-radius: 28px;
+  border: 1px solid var(--border); box-shadow: var(--shadow);
+  background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%), var(--surface);
+}
+.contact-card h2 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; margin: .6rem 0 1rem; }
+.contact-card p { color: var(--muted); max-width: 520px; margin: 0 auto 2rem; }
+.contact-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: .8rem; }
+.copy-email { margin-top: 1.6rem; color: var(--muted); font-size: .9rem; padding: .4rem .8rem; border-radius: 8px; transition: color .2s, background .2s; }
+.copy-email:hover { color: var(--text); background: var(--surface); }
+.copy-hint { color: var(--accent-2); font-size: .75rem; margin-left: .4rem; }
+.footer { border-top: 1px solid var(--border); padding: 2rem 0; margin-top: 2rem; }
+.footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; color: var(--muted); font-size: .88rem; }
+.footer p { margin: 0; }
+.footer a:hover { color: var(--accent); }
+
+/* ---------- 16. Responsive design: different layout rules for smaller screens ---------- */
+@media (max-width: 960px) {                          /* Tablets and phones */
+  .menu-btn { display: flex; }                       /* Show the hamburger */
+  .nav-links {                                       /* Turn the menu into a slide-down panel */
+    position: fixed; top: 70px; left: 0; right: 0; flex-direction: column; align-items: stretch; gap: .2rem;
+    padding: 1rem 1.25rem 1.5rem; background: var(--bg); border-bottom: 1px solid var(--border); box-shadow: var(--shadow);
+    transform: translateY(-120%); transition: transform .35s ease; z-index: -1; /* Hidden above the screen */
+  }
+  .nav-links.open { transform: none; }               /* main.js adds "open" to slide it down */
+  .nav-links a { padding: .8rem 1rem; font-size: 1rem; }
+  .nav-links a.active::after { display: none; }
+  .nav-links .nav-cta { margin: .4rem 0 0; text-align: center; }
+  .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }  /* Lines form an X */
+  .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .menu-btn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+  .hero-inner, .about-grid { grid-template-columns: 1fr; } /* Stack columns on top of each other */
+  .hero-inner { text-align: center; gap: 3.5rem; }
+  .hero-text { order: 2; }                           /* Put the photo above the text on phones */
+  .hero-photo-wrap { width: min(260px, 70vw); }
+  .hero-tagline { margin-inline: auto; }
+  .hero-buttons, .hero-socials, .status-pill { justify-content: center; }
+}
+@media (max-width: 560px) {                          /* Small phones */
+  .section { padding: 2.75rem 0; }                   /* Same idea on small phones, scaled down */
+  #about { padding: 4.5rem 0; }
+  #projects { padding-top: 4.5rem; }
+  .logo-text { display: none; }                      /* Only the DB square to save space */
+  .project-info { padding: 1.4rem; }
+  .impact-grid, .earlier-grid { grid-template-columns: 1fr; }
+  .hub-strip { flex-wrap: wrap; }
+  .tl-card { padding: 1.3rem; }
+  .btn { width: 100%; justify-content: center; }     /* Full-width buttons are easier to tap */
+}
+
+/* Respect visitors who turned on "reduce motion" in their OS settings (accessibility) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .js .reveal { opacity: 1; transform: none; }       /* Show everything immediately */
+}

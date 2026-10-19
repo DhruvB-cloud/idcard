@@ -1,0 +1,246 @@
+/* ==========================================================================
+   easter-egg.css - styles for the SECRET features (unlocked by pressing and holding the light/dark toggle for 5 seconds).
+   How the secret themes work:
+   - easter-egg.js sets an attribute on <html>, e.g. <html data-fun="christmas">
+   - The rules below re-define the colour variables (--accent, --bg ...) for that attribute,
+     so the whole site re-colours instantly - the same trick the dark/light switch uses.
+   - The attribute is never saved, so refreshing the page brings the normal theme back.
+   Jargon: "specificity" = when two CSS rules clash, the more specific selector wins.
+   html[data-fun="..."] (tag + attribute) beats [data-theme="dark"] (attribute only),
+   which is why the fun themes override the normal ones.
+   ========================================================================== */
+
+/* ---------- 1. Christmas: red & white ---------- */
+html[data-fun="christmas"] {                               /* Applies in dark mode (the default) */
+  --bg: #1f0609;                                           /* Very dark red background */
+  --bg-soft: #1f0609cc;                                    /* See-through version for the sticky nav */
+  --text: #fff5f5;                                         /* Snow-white text */
+  --muted: #f3c4c4;                                        /* Pale pink-white for secondary text */
+  --accent: #ef4444;                                       /* Bright Christmas red */
+  --accent-2: #ffffff;                                     /* Pure white */
+  --accent-3: #dc2626;                                     /* Deeper red */
+  --blob-opacity: 0.3;
+}
+html[data-fun="christmas"][data-theme="light"] {           /* Light mode: white page, red details */
+  --bg: #fffafa;
+  --bg-soft: #fffafacc;
+  --text: #450a0a;                                         /* Dark red text so it is readable on white */
+  --muted: #7f1d1d;
+  --accent: #dc2626;
+  --accent-2: #b91c1c;                                     /* White wouldn't show on a white page, so use red */
+  --accent-3: #f87171;
+}
+
+/* The main button normally fades accent -> accent-2. In Christmas (white) and Love (light pink) that end is too pale
+   for white text, so those themes use their two deeper colours instead */
+html[data-fun="christmas"] .btn-primary,
+html[data-fun="love"] .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-3)); }
+
+/* ---------- 2. Halloween: always dark, pumpkin orange + witchy purple ---------- */
+html[data-fun="halloween"] {                               /* Works in light AND dark mode: Halloween is always spooky-dark */
+  --bg: #0c0712;                                           /* Almost-black purple */
+  --bg-soft: #0c0712cc;
+  --surface: rgba(249, 115, 22, 0.06);                     /* Cards get a faint orange glow */
+  --surface-hover: rgba(249, 115, 22, 0.1);
+  --border: rgba(249, 115, 22, 0.2);
+  --text: #fde9d5;                                         /* Candle-light cream text */
+  --muted: #c4a98f;
+  --accent: #f97316;                                       /* Pumpkin orange */
+  --accent-2: #a855f7;                                     /* Witch purple */
+  --accent-3: #84cc16;                                     /* Slime green */
+  --green: #84cc16;
+  --shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.9);
+  --grid-line: rgba(249, 115, 22, 0.05);
+  --blob-opacity: 0.3;
+  color-scheme: dark;
+}
+html[data-fun="halloween"] .hero-name { text-shadow: 0 0 40px rgba(249, 115, 22, 0.35); } /* Eerie glow behind your name */
+
+/* ---------- 3. Love: pink ---------- */
+html[data-fun="love"] {
+  --bg: #1a0812;                                           /* Dark berry background */
+  --bg-soft: #1a0812cc;
+  --text: #fff0f6;
+  --muted: #f0abc9;
+  --accent: #ec4899;                                       /* Hot pink */
+  --accent-2: #f9a8d4;                                     /* Soft pink */
+  --accent-3: #f43f5e;                                     /* Rose red */
+  --blob-opacity: 0.35;
+}
+html[data-fun="love"][data-theme="light"] {
+  --bg: #fff1f7;                                           /* Blush-pink page */
+  --bg-soft: #fff1f7cc;
+  --text: #500724;
+  --muted: #9d174d;
+  --accent: #db2777;
+  --accent-2: #be185d;
+  --accent-3: #e11d48;
+}
+
+/* ---------- 4. Pride: rainbow ---------- */
+html[data-fun="pride"] {
+  --accent: #8b5cf6;                                       /* Single-colour bits (links, borders) use violet */
+  --accent-2: #3b82f6;                                     /* Blue */
+  --accent-3: #ef4444;                                     /* Red */
+  /* A full rainbow, saved in a variable so many elements can reuse it */
+  --rainbow: linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6, #ef4444);
+}
+/* Swap the 2-3 colour gradients for the rainbow on the most visible elements */
+html[data-fun="pride"] .hero-name,
+html[data-fun="pride"] .stat-num,
+html[data-fun="pride"] .photo-initials {
+  background: var(--rainbow);                              /* Rainbow painted behind the text... */
+  background-size: 200% auto;                              /* ...twice as wide as the text, so it can slide */
+  -webkit-background-clip: text; background-clip: text; color: transparent; /* ...and shown only through the letters */
+  animation: rainbow-slide 4s linear infinite;             /* Colours flow across the letters */
+}
+html[data-fun="pride"] .btn-primary,
+html[data-fun="pride"] .logo-mark,
+html[data-fun="pride"] .filter.active,
+html[data-fun="pride"] .scroll-progress {
+  background: var(--rainbow); background-size: 200% auto;
+  animation: rainbow-slide 4s linear infinite;
+}
+html[data-fun="pride"] .photo-ring {                       /* Rainbow colour wheel ring around the photo */
+  background: conic-gradient(#ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6, #ef4444);
+}
+html[data-fun="pride"] .timeline::before { background: linear-gradient(#ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6); } /* Rainbow timeline line */
+@keyframes rainbow-slide { to { background-position: 200% center; } } /* Slides the wide rainbow sideways */
+/* The scroll bar uses "transform" for its width, so keep that and only animate the colours */
+html[data-fun="pride"] .scroll-progress { animation-name: rainbow-slide; }
+
+/* Smoothly fade colours when a secret theme switches on */
+html[data-fun] body, html[data-fun] .card, html[data-fun] .btn { transition: background .6s, color .6s, border-color .6s; }
+
+/* ---------- 5. Falling particles (snow, bats, hearts, confetti) ---------- */
+.fun-layer { position: fixed; inset: 0; pointer-events: none; z-index: 40; overflow: hidden; } /* Full-screen layer that can't be clicked */
+.fun-layer span {
+  position: absolute; top: -10vh;                          /* Start just above the screen */
+  left: var(--x);                                          /* --x (random %) is set by easter-egg.js */
+  font-size: var(--size);                                  /* Random size */
+  opacity: var(--alpha);                                   /* Random transparency = sense of depth */
+  animation: fall var(--dur) linear var(--delay) infinite; /* Random speed + start time, loops forever */
+}
+@keyframes fall {
+  to { transform: translate(var(--drift), 115vh) rotate(var(--spin)); } /* Falls past the bottom, drifting sideways and spinning */
+}
+
+/* ---------- 6. Secret dropdown (opens under the light/dark toggle after a 5-second hold) ---------- */
+.nav-actions { position: relative; }                       /* The dropdown is positioned relative to this box */
+#themeToggle { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; } /* A long press on a phone shouldn't select or open a menu */
+.fun-menu {
+  position: absolute; top: calc(100% + 12px); right: 0; z-index: 70; /* Just below the toggle, lined up with its right edge */
+  width: min(300px, calc(100vw - 2rem)); padding: 1.1rem; border-radius: 16px; text-align: left;
+  color: var(--text); background: var(--bg); border: 1px solid var(--border);
+  box-shadow: 0 24px 60px -16px rgba(0, 0, 0, 0.75), 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
+  animation: menu-in .3s cubic-bezier(.2, .9, .3, 1.2);    /* Drops in with a little bounce */
+  transform-origin: top right;
+}
+@keyframes menu-in { from { opacity: 0; transform: translateY(-8px) scale(.95); } }
+.fun-title { font-weight: 700; font-size: 1rem; margin: 0 0 .2rem; }
+.fun-sub { color: var(--muted); font-size: .82rem; margin: 0 0 .9rem; }
+.fun-unlock { width: 100%; justify-content: center; margin-top: .5rem; }
+.fun-options { display: grid; gap: .4rem; }                /* The theme buttons, one per row */
+.fun-option {
+  display: flex; align-items: center; gap: .6rem; width: 100%; padding: .6rem .8rem; border-radius: 10px;
+  text-align: left; font-size: .92rem; border: 1px solid var(--border); background: var(--surface); transition: border-color .2s, background .2s;
+}
+.fun-option:hover { border-color: var(--accent); }
+.fun-option[aria-pressed="true"] {                         /* The theme that's on right now */
+  border-color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); font-weight: 600;
+}
+.fun-option[aria-pressed="true"]::after { content: "✓"; margin-left: auto; color: var(--accent); } /* Tick on the right */
+.fun-egg { margin-top: .3rem; border-style: dashed; }      /* "Replay easter egg" looks a little different from the themes */
+.pw-input {
+  width: 100%; padding: .85rem 1rem; border-radius: 12px; font: inherit; font-size: 1rem; text-align: center; letter-spacing: .1em;
+  color: var(--text); background: var(--surface); border: 1px solid var(--border); outline: none; transition: border-color .2s, box-shadow .2s;
+}
+.pw-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent); } /* Glow while typing */
+.pw-error { min-height: 1.4em; margin: .5rem 0 0; color: #f87171; font-size: .82rem; } /* Space kept even when empty, so nothing jumps */
+.shake { animation: shake .45s; }                          /* Wrong password: the dropdown shakes "no" */
+@keyframes shake {
+  20%, 60% { transform: translateX(-10px); }
+  40%, 80% { transform: translateX(10px); }
+}
+
+/* ---------- 7. Small notification ("toast") at the bottom ---------- */
+.fun-toast {
+  position: fixed; left: 50%; bottom: 1.5rem; z-index: 70; translate: -50% 0;
+  padding: .8rem 1.3rem; border-radius: 14px; font-weight: 600; font-size: .92rem; white-space: nowrap;
+  color: var(--text); background: var(--bg); border: 1px solid var(--accent); box-shadow: var(--shadow);
+  animation: toast 4s ease forwards;                       /* Slides up, waits, slides away; "forwards" keeps the end state */
+}
+@keyframes toast {
+  0% { opacity: 0; transform: translateY(30px); }
+  10%, 85% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(30px); }
+}
+
+/* ---------- 8. The easter egg opening animation ---------- */
+.egg-overlay {
+  position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; align-content: center; gap: 1.5rem;
+  background: rgba(5, 6, 12, 0.75); backdrop-filter: blur(8px); cursor: pointer;
+  animation: fade-in .4s ease;
+}
+.egg-overlay.closing { animation: fade-out .4s ease forwards; } /* Fades away before being removed */
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+
+.egg { position: relative; isolation: isolate; width: 170px; height: 220px; animation: wobble .9s ease-in-out 3; } /* Wobbles 3 times before cracking; isolation keeps the chick's layering inside the egg */
+@keyframes wobble {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-9deg); }
+  75% { transform: rotate(9deg); }
+}
+/* Both halves are full-size egg shapes; clip-path cuts each one along the same zig-zag "crack" */
+.egg-half {
+  position: absolute; inset: 0;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;       /* This border-radius combo makes an egg shape (narrower top) */
+  background:                                              /* Painted pattern: dots + stripes, using the site colours */
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.55) 0 7px, transparent 8px) 0 0 / 46px 46px,
+    linear-gradient(transparent 62%, color-mix(in srgb, var(--accent-2) 70%, white) 62% 70%, transparent 70%),
+    linear-gradient(150deg, color-mix(in srgb, var(--accent) 80%, white), var(--accent));
+  box-shadow: inset -14px -18px 30px rgba(0, 0, 0, 0.25), 0 25px 50px -15px rgba(0, 0, 0, 0.6); /* Shading = 3D look */
+}
+.egg-top    { clip-path: polygon(0 0, 100% 0, 100% 52%, 88% 45%, 76% 55%, 63% 45%, 50% 55%, 37% 45%, 24% 55%, 12% 45%, 0 52%); } /* Above the crack */
+.egg-bottom { clip-path: polygon(0 52%, 12% 45%, 24% 55%, 37% 45%, 50% 55%, 63% 45%, 76% 55%, 88% 45%, 100% 52%, 100% 100%, 0 100%); } /* Below the crack */
+/* After the wobbling (2.7s), the top flies off and the bottom settles */
+.egg-top    { animation: lid-off .8s cubic-bezier(.3, 1.4, .5, 1) 2.7s forwards; }
+@keyframes lid-off { to { transform: translate(60px, -150px) rotate(35deg); opacity: 0; } }
+.egg-bottom { animation: settle .4s ease 2.7s forwards; }
+@keyframes settle { 50% { transform: translateY(8px); } }
+.egg-chick {                                               /* The surprise that pops out */
+  position: absolute; left: 50%; top: 30%; font-size: 5.5rem; z-index: -1; /* Starts hidden inside, behind the bottom half */
+  translate: -50% 0; transform: scale(0);
+  animation: pop-out .7s cubic-bezier(.3, 1.6, .5, 1) 2.9s forwards;
+}
+@keyframes pop-out { to { transform: translateY(-110px) scale(1); } } /* Jumps up out of the shell */
+.egg-message { text-align: center; opacity: 0; animation: fade-up .6s ease 3.5s forwards; } /* Text appears last */
+.egg-message h2 {
+  font-size: clamp(1.8rem, 6vw, 2.6rem); font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.egg-message p { color: #d6d9e8; margin: .4rem 0 0; }
+.egg-hint { font-size: .8rem; opacity: .6; }
+@keyframes fade-up { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: none; } }
+.confetti {                                                /* Burst of confetti pieces when the egg opens */
+  position: fixed; left: 50%; top: 50%; width: 9px; height: 14px; border-radius: 2px; background: var(--c);
+  opacity: 0; animation: burst 1.6s cubic-bezier(.1, .8, .3, 1) 2.8s forwards;
+}
+@keyframes burst {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+  100% { opacity: 0; transform: translate(var(--tx), var(--ty)) rotate(var(--spin)); } /* --tx/--ty = random direction set in JS */
+}
+
+/* Visitors who turned on "reduce motion": style.css switches all animations off,
+   so jump straight to the egg's final, opened state instead of leaving it frozen */
+@media (prefers-reduced-motion: reduce) {
+  .egg-top, .confetti { display: none; }                   /* No lid, no confetti */
+  .egg-chick { transform: translateY(-110px) scale(1); }   /* Chick already out of the shell */
+  .egg-message { opacity: 1; }                             /* Message already visible */
+}
+
+/* Secrets not found yet: greyed out, not clickable, name hidden */
+.fun-locked { color: var(--muted); border-style: dashed; opacity: .6; cursor: default; }
+.fun-form-more { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--border); } /* Password box under the list, with a divider line */
+.fun-form-more .fun-sub { margin-bottom: .5rem; }
