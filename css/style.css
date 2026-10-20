@@ -309,7 +309,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 .skill:hover i { transform: rotate(-10deg) scale(1.2); } /* Playful wiggle on hover */
 
 /* ---------- 11. Projects ---------- */
-.project-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; } /* 3 compact cards side by side */
+.project-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); gap: 1.2rem; } /* 4 projects = a 2 x 2 grid on a laptop (cards at least 420px wide), 1 per row on phones; min(..., 100%) stops a card overflowing a narrow screen */
 .project {                                          /* One compact project card: picture on top, details below */
   display: flex; flex-direction: column; overflow: hidden; cursor: pointer; /* Pointer cursor = "click me for more" */
 }

@@ -26,9 +26,9 @@ const SITE = {
     openToWork: true,                                      // true = shows the green pill; false hides it
     // Words that the hero banner "types" one after another - all say the same thing from different angles
     roles: ["Full Stack Developer", "Python & Java Developer", "Product-minded Engineer"],
-    // The pitch under your name: what you were, what you are now, and the proof (3 apps)
+    // The pitch under your name: what you were, what you are now, and the proof (4 apps)
     tagline: "3+ years as a Product Manager at a startup taught me what to build. Now I build it myself: " +
-             "I've built and shipped three apps end to end, two of them full stack with APIs and databases in the cloud."
+             "I've built and shipped four apps end to end, three of them full stack with APIs and databases in the cloud."
   },
 
   // ---------- "About me" paragraphs + the number counters beside them ----------
@@ -37,14 +37,14 @@ const SITE = {
     "<strong>Associate Product Manager at Mooments</strong>, I wrote API specifications, mapped system workflows and " +
     "worked daily with engineers to take features from idea to production.",
     "Working that close to engineering made me want to build, not just plan. Since then I've designed, coded and " +
-    "shipped <strong>three apps of my own</strong> in Python, Java and JavaScript, each with its own database, two of " +
+    "shipped <strong>four apps of my own</strong> in Python, Java and JavaScript, each with its own database, three of " +
     "them with cloud backends. My product background is my edge: I think about the user, the requirement and the " +
     "edge cases before I write the first line of code."
   ],
   // Each counter animates from 0 up to "value" when it scrolls into view. Only numbers you can back up!
   stats: [
     { value: 3,  suffix: "+", label: "Years in product at a tech startup" },   // "+" is added after the number
-    { value: 3,  suffix: "",  label: "Apps designed, built and shipped end to end" },
+    { value: 4,  suffix: "",  label: "Apps designed, built and shipped end to end" },
     { value: 43, suffix: "",  label: "Automated tests in FridgeChef" }
   ],
 
@@ -70,6 +70,23 @@ const SITE = {
       links: [
         { label: "View code", url: "https://github.com/DhruvB-cloud/FridgeChef" },
         { label: "Download the app", url: "https://app-hub.dhruvdoit.workers.dev" }
+      ]
+    },
+    {
+      name: "QR Painter",
+      tagline: "Turns any link into a QR code you can colour in, with a live view counter powered by my own Java API.",
+      highlight: "Spring Boot API on Cloud Run · PostgreSQL · auto-deployed on every push",
+      image: "assets/qr-painter.jpg",                       // Screenshot: dark mode with paint on the dark squares
+      built: [
+        "Web app in plain <b>JavaScript</b>: live QR generation, a paint layer clipped to the QR's dark squares with a hidden <b>canvas mask</b>, undo, and PNG/JPEG export.",
+        "<b>Java Spring Boot REST API</b> (HitCounter) that counts page views: a single atomic <b>SQL</b> update, so simultaneous visits are never lost, plus a CORS allow-list and per-IP rate limiting.",
+        "<b>PostgreSQL</b> in production (H2 locally), packaged with <b>Docker</b> and deployed to <b>Google Cloud Run</b>, rebuilt automatically by Cloud Build on every push.",
+        "<b>8 JUnit tests</b>, including 50 simultaneous requests that prove no count is lost."
+      ],
+      tags: ["JavaScript", "Java", "Spring Boot", "PostgreSQL", "Docker", "Cloud Run"],
+      links: [
+        { label: "Open live site", url: "https://dhruvb-cloud.github.io/qr-painter/" },
+        { label: "View code", url: "https://github.com/DhruvB-cloud/qr-painter" }  // The website's code; the Java API repo is private
       ]
     },
     {
@@ -174,11 +191,13 @@ const SITE = {
     {
       group: "Backend & Cloud",
       items: [
+        { name: "Spring Boot",        icon: "devicon-spring-plain" },
         { name: "Flask",              icon: "devicon-flask-original" },
         { name: "REST APIs",          icon: "" },
         { name: "Docker",             icon: "devicon-docker-plain" },
         { name: "Google Cloud Run",   icon: "devicon-googlecloud-plain" },
         { name: "Cloudflare Workers", icon: "devicon-cloudflare-plain" },
+        { name: "PostgreSQL",         icon: "devicon-postgresql-plain" },
         { name: "SQLite / D1",        icon: "devicon-sqlite-plain" }
       ]
     },
